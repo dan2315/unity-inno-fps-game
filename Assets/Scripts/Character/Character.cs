@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Character
 {
@@ -6,8 +7,12 @@ namespace Character
     {
         [SerializeField] private HitPoints hp;
 
-        private void Start()
+        public HitPoints HP => hp;
+
+        public Action OnDeath;
+        protected virtual void Awake()
         {
+            hp.Initialize();
             hp.HitPointsChanged += CheckForDeath;
         }
 
@@ -30,6 +35,7 @@ namespace Character
         {
             if (health > 0) return;
             Death();
+            OnDeath?.Invoke();
             hp.HitPointsChanged -= CheckForDeath;
         }
 

@@ -6,11 +6,15 @@ namespace UI
     public class ProgressBar : MonoBehaviour
     {
         [SerializeField] private Image image;
-        [SerializeField] private float progress;
 
         public void SetProgress(float percentage)
         {
             image.fillAmount = percentage;
+        }
+
+        public void SetProgress(float value, float outOf)
+        {
+            SetProgress(value/outOf);
         }
     }
 }

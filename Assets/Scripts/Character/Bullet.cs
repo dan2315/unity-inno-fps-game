@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Character
 {
@@ -16,7 +17,7 @@ namespace Character
 
         private void OnCollisionEnter(Collision other)
         {
-            if(other.transform.TryGetComponent(out Enemy enemy))
+            if(other.transform.TryGetComponent(out Character enemy))
             {
                 enemy.DealDamage(5);
             }

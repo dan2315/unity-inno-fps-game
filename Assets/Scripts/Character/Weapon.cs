@@ -1,7 +1,6 @@
 ﻿using System;
 using DG.Tweening;
 using UnityEngine;
-using static UnityEngine.Screen;
 
 namespace Character
 {
@@ -10,13 +9,15 @@ namespace Character
         [SerializeField] private float reloadTime = 2;
         [SerializeField] private Bullet bulletPrefab;
         [SerializeField] private Transform shootingPoint;
-        [SerializeField] private Camera camera;
         [SerializeField] private ParticleSystem shootingVfx;
 
         [SerializeField] private Transform visuals;
         [SerializeField] private Transform magazine;
         [SerializeField] private Transform rightArmPivot;
         [SerializeField] private Transform leftArmPivot;
+
+        [SerializeField] private bool infiniteAmmo;
+                
 
         private float _initialRightArmPivotHeight;
         private float _initialLeftArmPivotHeight;
@@ -27,7 +28,7 @@ namespace Character
 
         private float _fireCooldown;
 
-        private int _maxAmmo = 180;
+        private int _maxAmmo = 90;
         private int _magazineSize = 30;
 
         private int _totalAmmo;
@@ -55,15 +56,14 @@ namespace Character
 
         private void Update()
         {
-            // Shoot();
             ForceReload();
             Modifier.ProcessTime();
         }
 
-        public void Shoot(Quaternion shootDirection)
+        public void Shoot(bool shootingCondition, Vector3 targetPosition)
         {
             if (_isReloading) return;
-            if (Input.GetKey(KeyCode.Mouse0))
+            if (shootingCondition)
             {
                 if (_ammoInMagazine <= 0)
                 {
@@ -72,20 +72,9 @@ namespace Character
                 }
                 else if (_fireCooldown >= 1 / _fireRate)
                 {
-                    Quaternion rotation;
-                    Ray ray = camera.ScreenPointToRay(new Vector2(width / 2, height / 2));
-                    if (Physics.Raycast(ray, out var hit))
-                    {
-                        rotation = Quaternion.LookRotation(hit.point - ray.origin, Vector3.up);
-                    }
-                    else
-                    {
-                        rotation = Quaternion.LookRotation((ray.origin + ray.direction * 10) - ray.origin, Vector3.up);
-                    }
-
-
-                    Instantiate(bulletPrefab, shootingPoint.position, rotation, _bulletParent.transform);
-                    _ammoInMagazine -= 1;
+                    Instantiate(bulletPrefab, shootingPoint.position, Quaternion.LookRotation(targetPosition - shootingPoint.position) , _bulletParent.transform);
+                    Debug.DrawLine(targetPosition, shootingPoint.position, Color.black, 1);
+                    if (!infiniteAmmo) _ammoInMagazine -= 1;
                     AmmoChanged?.Invoke(_ammoInMagazine, _totalAmmo);
                     _fireCooldown = 0;
                 }
@@ -145,6 +134,7 @@ namespace Character
         {
             _totalAmmo += amount;
             if (_totalAmmo > _maxAmmo) _totalAmmo = _maxAmmo;
+            AmmoChanged?.Invoke(_ammoInMagazine, _totalAmmo);
         }
 
         public void RotateVerticallyAndNotVertically(Quaternion rotation, Vector3 mouseMovementDelta)
@@ -152,7 +142,7 @@ namespace Character
             var deviation = rotation.eulerAngles.x <= 180 ? -rotation.eulerAngles.x : 360 - rotation.eulerAngles.x;
             
             var modifiedRotation = rotation.eulerAngles;
-            modifiedRotation.x = deviation * -3f;
+            modifiedRotation.x = deviation * -1.5f;
             transform.eulerAngles = modifiedRotation;
             
             var modifiedLocalRotation = rotation.eulerAngles;
