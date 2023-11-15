@@ -1,4 +1,4 @@
-﻿using Unity.Mathematics;
+﻿using Pickups;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,6 +8,12 @@ namespace Character
     {
         [SerializeField] private NavMeshAgent navigation;
         [SerializeField] private Weapon weapon;
+
+        [SerializeField] private SphereCollider forceshieldCollider;
+        [SerializeField] private ShieldVisuals shieldVisuals;
+        
+
+        private ModifierType _shieldType = ModifierType.None;
 
         private void Update()
         {
@@ -52,9 +58,44 @@ namespace Character
             transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
         }
 
-        public void SetShield()
+        public void SetShield(ModifierType modifier)
         {
+            _shieldType = modifier;
+            shieldVisuals.gameObject.SetActive(true);
+            shieldVisuals.SetMaterial(modifier);
+            forceshieldCollider.gameObject.SetActive(true);
+            HP.HitPointsChanged += (armor, _) =>
+            {
+                if (armor <= 0) DestroyShield();
+            };
+        }
+
+        private void DestroyShield()
+        {
+            shieldVisuals.gameObject.SetActive(false);
+            forceshieldCollider.gameObject.SetActive(false);
+            _shieldType = ModifierType.None;
+        }
+
+        public override void DealDamage(float damageAmount, ModifierType damageSourceType)
+        {
+            if (_shieldType != ModifierType.None)
+            {
+                if (_shieldType != damageSourceType)
+                {
+                    damageAmount *= 2f;
+                }
+                else
+                {
+                    damageAmount *= 0.25f;
+                }
+            }
+            else if (damageSourceType != ModifierType.None)
+            {
+                damageAmount *= 2f;
+            }
             
+            HP.DealDamage(damageAmount);
         }
 
         protected override void Death()

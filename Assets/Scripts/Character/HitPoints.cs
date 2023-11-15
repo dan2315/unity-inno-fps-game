@@ -6,16 +6,16 @@ namespace Character
     [Serializable]
     public class HitPoints
     {
-        [SerializeField] private int maxHealth;
-        [SerializeField] private int maxArmor;
+        [SerializeField] private float maxHealth;
+        [SerializeField] private float maxArmor;
         
-        private int _health;
-        private int _armor;
+        private float _health;
+        private float _armor;
 
-        public int MaxHealth => maxHealth;
-        public int MaxArmor => maxArmor;
+        public float MaxHealth => maxHealth;
+        public float MaxArmor => maxArmor;
 
-        public Action<int, int> HitPointsChanged;
+        public Action<float, float> HitPointsChanged;
 
         public void Initialize()
         {
@@ -24,7 +24,7 @@ namespace Character
             HitPointsChanged?.Invoke(_armor, _health);
         }
         
-        public void DealDamage(int damageAmount)
+        public void DealDamage(float damageAmount)
         {
             _armor -= damageAmount;
             if (_armor < 0)
@@ -36,14 +36,14 @@ namespace Character
             HitPointsChanged?.Invoke(_armor, _health);
         }
 
-        public void AddHealth(int health)
+        public void AddHealth(float health)
         {
             _health += health;
             if (_health > maxHealth) _health = maxHealth;
             HitPointsChanged?.Invoke(_armor, _health);
         }
 
-        public void AddArmor(int armor)
+        public void AddArmor(float armor)
         {
             _armor += armor;
             if (_armor > maxArmor) _armor = maxArmor;

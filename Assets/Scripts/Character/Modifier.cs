@@ -9,6 +9,8 @@ namespace Character
         private ModifierType _type;
         private float _remainingTime;
 
+        public ModifierType Type => _type;
+
         public void Activate(ModifierType modifierType)
         {
             _active = true;

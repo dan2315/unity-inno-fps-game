@@ -24,6 +24,7 @@ namespace Pickups
 
     public enum ModifierType
     {
+        None,
         FireModifier,
         ElectricalModifier
     }

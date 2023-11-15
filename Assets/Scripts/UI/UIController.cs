@@ -44,7 +44,7 @@ namespace UI
             ammoText.text = $"{ammoInMagazine}/{totalAmmo}";
         }
 
-        private void UpdateHealth(int armor, int health)
+        private void UpdateHealth(float armor, float health)
         {
             this.health.SetProgress(health, _character.HP.MaxHealth);
             this.armor.SetProgress(armor, _character.HP.MaxArmor);

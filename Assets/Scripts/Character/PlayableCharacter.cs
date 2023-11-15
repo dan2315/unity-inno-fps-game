@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 using static UnityEngine.Screen;
 
@@ -19,6 +20,7 @@ namespace Character
         private float _jumpCooldown;
         private Rigidbody _rigidbody;
         private bool _isGrounded;
+        private bool _dashState;
         private float _dashCooldown;
         private Vector3 _desiredVelocity;
 
@@ -71,7 +73,7 @@ namespace Character
             float vertical = Input.GetAxis("Vertical");
 
             Vector3 moveDirection = (transform.forward * vertical + transform.right * horizontal).normalized;
-            _rigidbody.velocity = moveDirection * speed + _rigidbody.velocity.y * Vector3.up;
+            _rigidbody.velocity = moveDirection * (speed + (_dashState ? dashStrength : 0)) + _rigidbody.velocity.y * Vector3.up ;
 
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
@@ -95,7 +97,8 @@ namespace Character
         {
             if (_dashCooldown >= dashReplenishTime / 2)
             {
-                _rigidbody.AddForce(direction * dashStrength, ForceMode.Impulse);
+                _dashState = true;
+                DOTween.Sequence().AppendInterval(0.25f).OnComplete(() => _dashState = false);
                 _dashCooldown -= dashReplenishTime/2;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Pickups;
 using UnityEngine;
 
 namespace Character
@@ -16,22 +17,22 @@ namespace Character
             hp.HitPointsChanged += CheckForDeath;
         }
 
-        public void DealDamage(int health)
+        public virtual void DealDamage(float damageAmount, ModifierType damageSourceType)
         {
-            hp.DealDamage(health);
+            hp.DealDamage(damageAmount);
         }
 
-        public void AddHealth(int health)
+        public void AddHealth(float health)
         {
             hp.AddHealth(health);
         }
 
-        public void AddArmor(int armor)
+        public void AddArmor(float armor)
         {
             hp.AddArmor(armor);
         }
 
-        private void CheckForDeath(int armor, int health)
+        private void CheckForDeath(float armor, float health)
         {
             if (health > 0) return;
             Death();

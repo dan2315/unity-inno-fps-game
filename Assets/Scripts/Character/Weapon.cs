@@ -1,5 +1,6 @@
 ﻿using System;
 using DG.Tweening;
+using Pickups;
 using UnityEngine;
 
 namespace Character
@@ -8,6 +9,9 @@ namespace Character
     {
         [SerializeField] private float reloadTime = 2;
         [SerializeField] private Bullet bulletPrefab;
+        [SerializeField] private Bullet fireBulletPrefab;
+        [SerializeField] private Bullet electricBulletPrefab;
+        
         [SerializeField] private Transform shootingPoint;
         [SerializeField] private ParticleSystem shootingVfx;
 
@@ -72,8 +76,15 @@ namespace Character
                 }
                 else if (_fireCooldown >= 1 / _fireRate)
                 {
-                    Instantiate(bulletPrefab, shootingPoint.position, Quaternion.LookRotation(targetPosition - shootingPoint.position) , _bulletParent.transform);
-                    Debug.DrawLine(targetPosition, shootingPoint.position, Color.black, 1);
+                    var prefabToSpawn = Modifier.Type switch
+                    {
+                        ModifierType.FireModifier => fireBulletPrefab,
+                        ModifierType.ElectricalModifier => electricBulletPrefab,
+                        _ => bulletPrefab
+                    };
+
+                    var bullet = Instantiate(prefabToSpawn, shootingPoint.position, Quaternion.LookRotation(targetPosition - shootingPoint.position) , _bulletParent.transform);
+                    bullet.SetDamageModifier(Modifier.Type);
                     if (!infiniteAmmo) _ammoInMagazine -= 1;
                     AmmoChanged?.Invoke(_ammoInMagazine, _totalAmmo);
                     _fireCooldown = 0;

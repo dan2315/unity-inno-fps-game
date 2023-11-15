@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Character;
+using Pickups;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -13,7 +14,7 @@ namespace Gamemode
         [SerializeField] private int waveCount;
         [SerializeField] private List<Transform> enemySpawnPoints;
         [SerializeField] private Enemy enemyPrefab;
-        
+
         private int _waveCounter = 1;
         private int _enemiesCounter;
         private int _enemiesForWave;
@@ -53,7 +54,8 @@ namespace Gamemode
                 enemy.OnDeath += HandleEnemyDeath;
                 if (shieldedEnemies > 0)
                 {
-                    enemy.SetShield();
+                    enemy.SetShield(Random.value * 2 >= 1 ? ModifierType.FireModifier : ModifierType.ElectricalModifier);
+                    enemy.HP.AddArmor(25);
                     shieldedEnemies--;
                 }
             }
