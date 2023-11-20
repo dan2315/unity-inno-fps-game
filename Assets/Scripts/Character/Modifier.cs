@@ -1,4 +1,5 @@
 ﻿using Pickups;
+using UI;
 using UnityEngine;
 
 namespace Character
@@ -15,12 +16,15 @@ namespace Character
         {
             _active = true;
             _type = modifierType;
-            _remainingTime = 30; //sec
+            _remainingTime = 15; //sec
+            UIController.UiController.UpdateVignette(modifierType);
         }
 
         private void Disable()
         {
             _active = false;
+            _type = ModifierType.None;
+            UIController.UiController.UpdateVignette(ModifierType.None);
         }
 
         public void ProcessTime()

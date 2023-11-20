@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Character;
+using DG.Tweening;
 using Pickups;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -15,12 +17,23 @@ namespace Gamemode
         [SerializeField] private List<Transform> enemySpawnPoints;
         [SerializeField] private Enemy enemyPrefab;
 
+        [SerializeField] private Transform buildMarker;
+        [SerializeField] private TurretBuilder turretBuilder;
+        [SerializeField] private AudioListener audioListener;
+        
+        
+
+
         private int _waveCounter = 1;
         private int _enemiesCounter;
         private int _enemiesForWave;
 
+        private bool _isPreparationStage;
+        private bool _isPlayerDead;
+
         private static GameController _instance;
-        
+        public bool IsPreparationStage => _isPreparationStage;
+        public bool IsPlayerDead => _isPlayerDead;
         public static GameController Instance => _instance;
         public Action<int, int, int> WaveInfoUpdated;
         
@@ -31,13 +44,50 @@ namespace Gamemode
 
         private void Start()
         {
-            SpawnWave();
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            StartPreparationStage();
+            AudioListener.volume = PlayerPrefs.GetFloat("masterVolume", 1);
         }
 
+        private void Update()
+        {
+            if (_isPreparationStage && Input.GetKeyDown(KeyCode.F))
+            {
+                EndPreparationStage();
+            }
+
+            if (_isPlayerDead && Input.GetKeyDown(KeyCode.F))
+            {
+                SceneManager.LoadScene("Main");
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.Confined;
+                SceneManager.LoadScene("MainMenu");
+            }
+        }
+
+        private void StartPreparationStage()
+        {
+            _isPreparationStage = true;
+        }
+
+        private void EndPreparationStage()
+        {
+            _isPreparationStage = false;
+            buildMarker.gameObject.SetActive(false);
+            turretBuilder.enabled = false;
+            UIController.UiController.HidePreparationUI();
+            SpawnWave();
+        }
+        
         private void SpawnWave()
         {
             _enemiesForWave = 2 + _waveCounter;
-            int shieldedEnemies = Mathf.Max(-2 + _waveCounter, 0);
+            int shieldedEnemies = Mathf.RoundToInt(_enemiesForWave * 0.33f);
             _enemiesCounter = _enemiesForWave;
             
             var temp = new Transform[enemySpawnPoints.Count];
@@ -70,7 +120,7 @@ namespace Gamemode
 
             if (_enemiesCounter <= 0)
             {
-                EndWave();
+                DOTween.Sequence().AppendInterval(2).OnComplete(EndWave);
             }
         }
 
@@ -92,9 +142,10 @@ namespace Gamemode
             SceneManager.LoadScene("WinScene");
         }
 
-        private void HandleLose()
+        public void HandleLose()
         {
-            SceneManager.LoadScene("Main");
+            _isPlayerDead = true;
+            UIController.UiController.ShowDeathScreen();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using DG.Tweening;
+using Gamemode;
 using Pickups;
 using UnityEngine;
 
@@ -8,12 +9,16 @@ namespace Character
     public class Weapon : MonoBehaviour
     {
         [SerializeField] private float reloadTime = 2;
+        [SerializeField] private float fireRate = 5; //     bullets / sec
+        
+        
         [SerializeField] private Bullet bulletPrefab;
         [SerializeField] private Bullet fireBulletPrefab;
         [SerializeField] private Bullet electricBulletPrefab;
         
         [SerializeField] private Transform shootingPoint;
         [SerializeField] private ParticleSystem shootingVfx;
+        [SerializeField] private AudioSource shotAudioSource;
 
         [SerializeField] private Transform visuals;
         [SerializeField] private Transform magazine;
@@ -27,9 +32,7 @@ namespace Character
         private float _initialLeftArmPivotHeight;
         private float _initialMagazineHeight;
         private float _initialRelativeHeight;
-
-        private float _fireRate = 5; //     bullets / sec
-
+        
         private float _fireCooldown;
 
         private int _maxAmmo = 90;
@@ -52,6 +55,8 @@ namespace Character
             _totalAmmo = 60;
             _ammoInMagazine = 30;
             
+            
+            if (visuals == null) return;
             _initialRelativeHeight = transform.localPosition.y;
             _initialRightArmPivotHeight = rightArmPivot.localPosition.y;
             _initialLeftArmPivotHeight = leftArmPivot.localPosition.y;
@@ -74,7 +79,7 @@ namespace Character
                     Reload();
                     if (shootingVfx.isPlaying) shootingVfx.Stop();
                 }
-                else if (_fireCooldown >= 1 / _fireRate)
+                else if (_fireCooldown >= 1 / fireRate)
                 {
                     var prefabToSpawn = Modifier.Type switch
                     {
@@ -83,6 +88,7 @@ namespace Character
                         _ => bulletPrefab
                     };
 
+                    shotAudioSource.Play();
                     var bullet = Instantiate(prefabToSpawn, shootingPoint.position, Quaternion.LookRotation(targetPosition - shootingPoint.position) , _bulletParent.transform);
                     bullet.SetDamageModifier(Modifier.Type);
                     if (!infiniteAmmo) _ammoInMagazine -= 1;
@@ -131,6 +137,8 @@ namespace Character
 
         private void AnimateReloading(Action onComplete)
         {
+            if (visuals == null) return;
+
             DOTween.Sequence()
                 .Append(visuals.DOLocalRotate(Vector3.forward * -30, 0.25f * reloadTime))
                 .Append(magazine.DOLocalMoveY(_initialMagazineHeight - 1, 0.25f * reloadTime))
@@ -161,13 +169,13 @@ namespace Character
             transform.localRotation = Quaternion.Lerp(transform.localRotation ,Quaternion.Euler(modifiedLocalRotation), 0.25f); 
 
             var modifiedPosition = transform.localPosition;
-            modifiedPosition.y = _initialRelativeHeight + deviation * 0.01f;
+            modifiedPosition.y = _initialRelativeHeight + deviation * 0.005f;
             
             var modifiedRightArmPosition = rightArmPivot.localPosition;
-            modifiedRightArmPosition.y = _initialRightArmPivotHeight + deviation * 0.01f;
+            modifiedRightArmPosition.y = _initialRightArmPivotHeight + deviation * 0.005f;
             
             var modifiedLeftArmPosition = leftArmPivot.localPosition;
-            modifiedLeftArmPosition.y = _initialLeftArmPivotHeight + deviation * 0.01f;
+            modifiedLeftArmPosition.y = _initialLeftArmPivotHeight + deviation * 0.005f;
 
             rightArmPivot.localPosition = modifiedRightArmPosition; 
             leftArmPivot.localPosition = modifiedLeftArmPosition;

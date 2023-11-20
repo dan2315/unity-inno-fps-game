@@ -11,18 +11,26 @@ namespace Character
 
         [SerializeField] private SphereCollider forceshieldCollider;
         [SerializeField] private ShieldVisuals shieldVisuals;
+
+        [SerializeField] private Animator animator;
         
 
+        private bool _deadState;
+        
         private ModifierType _shieldType = ModifierType.None;
+        private static readonly int DeathAnimation = Animator.StringToHash("Death");
 
         private void Update()
         {
+            if (_deadState) return;
+            
             Rotate();
             var isPathUnobstructed = IsPathToPlayerUnobstructed();
-            
+            var distanceToPlayer = Vector3.Distance(PlayableCharacter.Instance.transform.position, transform.position);
+
             Shoot(isPathUnobstructed);
             
-            if(!isPathUnobstructed)
+            if(!isPathUnobstructed || distanceToPlayer > 50)
             {
                 MoveToPlayer();
             } 
@@ -100,7 +108,10 @@ namespace Character
 
         protected override void Death()
         {
-            Destroy(gameObject);
+            Destroy(GetComponent<Rigidbody>());
+            animator.SetTrigger(DeathAnimation);
+            _deadState = true;
+            Destroy(gameObject, 5);
         }
     }
 }

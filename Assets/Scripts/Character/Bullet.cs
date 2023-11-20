@@ -10,10 +10,19 @@ namespace Character
         [SerializeField] private ParticleSystem explosionPrefab;
 
         private ModifierType _modifier = ModifierType.None;
+        private float _timer;
         
         private void Update()
         {
             rigidbody.velocity = transform.forward * speed;
+            
+            if (_timer >= 0.2f)
+                GetComponent<Collider>().isTrigger = false;
+            else
+                _timer += Time.deltaTime;
+            
+
+            _timer += Time.deltaTime;
         }
 
         public void SetDamageModifier(ModifierType modifier)
@@ -30,7 +39,7 @@ namespace Character
 
             var explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
-            Destroy(explosion.gameObject, 1);
+            Destroy(explosion.gameObject, 2);
         }
     }
 }

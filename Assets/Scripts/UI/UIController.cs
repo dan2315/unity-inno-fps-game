@@ -1,6 +1,8 @@
 ﻿using System;
 using Character;
+using DG.Tweening;
 using Gamemode;
+using Pickups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,16 +17,31 @@ namespace UI
         [SerializeField] private ProgressBar armor;
         [SerializeField] private TMP_Text healthText;
         [SerializeField] private TMP_Text armorText;
-
-
+        
         [SerializeField] private ProgressBar waveProgress;
         [SerializeField] private TMP_Text waveText;
 
         [SerializeField] private Image dashCooldownImage1;
         [SerializeField] private Image dashCooldownImage2;
+
+        [SerializeField] private CanvasGroup fireVignette;
+        [SerializeField] private CanvasGroup electricVignette;
+
+        [SerializeField] private GameObject preparationUI;
+        [SerializeField] private TMP_Text buildText;
+
+        [SerializeField] private CanvasGroup deathScreen;
         
 
         private PlayableCharacter _character;
+
+        private static UIController _uiController;
+        public static UIController UiController => _uiController;
+
+        private void Awake()
+        {
+            _uiController = this;
+        }
 
         private void Start()
         {
@@ -62,6 +79,43 @@ namespace UI
         {
             dashCooldownImage1.fillAmount = cooldown;
             dashCooldownImage2.fillAmount = cooldown - 1;
+        }
+
+        public void UpdateVignette(ModifierType modifierType)
+        {
+            switch (modifierType)
+            {
+                case ModifierType.None:
+                    fireVignette.gameObject.SetActive(false);
+                    electricVignette.gameObject.SetActive(false);
+                    break;
+                case ModifierType.FireModifier:
+                    fireVignette.gameObject.SetActive(true);
+                    electricVignette.gameObject.SetActive(false);
+                    break;
+                case ModifierType.ElectricalModifier:
+                    fireVignette.gameObject.SetActive(false);
+                    electricVignette.gameObject.SetActive(true);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(modifierType), modifierType, null);
+            }
+        }
+
+
+        public void HidePreparationUI()
+        {
+            preparationUI.SetActive(false);
+            waveProgress.gameObject.SetActive(true);
+        }
+        public void UpdateBuildText(int remainingTurrets)
+        {
+            buildText.text = $"Click LMB at desired place to build {remainingTurrets} more turrets";
+        }
+
+        public void ShowDeathScreen()
+        {
+            deathScreen.DOFade(1, 2f);
         }
     }
 }

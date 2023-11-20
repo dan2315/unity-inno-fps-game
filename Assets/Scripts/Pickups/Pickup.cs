@@ -25,6 +25,7 @@ namespace Pickups
             if (other.transform.parent.TryGetComponent(out PlayableCharacter character))
             {
                 ApplyPickup(character);
+                character.PlayPickupSound();
                 _rotation.Kill();
                 _floating.Kill();
                 OnCollected?.Invoke();

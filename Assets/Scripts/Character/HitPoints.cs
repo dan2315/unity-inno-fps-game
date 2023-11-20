@@ -16,6 +16,7 @@ namespace Character
         public float MaxArmor => maxArmor;
 
         public Action<float, float> HitPointsChanged;
+        public Action DamageTaken;
 
         public void Initialize()
         {
@@ -33,6 +34,7 @@ namespace Character
                 _armor -= _armor;
             }
             
+            DamageTaken?.Invoke();
             HitPointsChanged?.Invoke(_armor, _health);
         }
 
