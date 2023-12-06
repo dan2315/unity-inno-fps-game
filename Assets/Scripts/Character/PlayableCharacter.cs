@@ -55,13 +55,13 @@ namespace Character
         private void Update()
         {
             CooldownDash();
+            Move();
         }
 
         private void FixedUpdate()
         {
             if (GameController.Instance.IsPlayerDead) return;
 
-            Move();
             Rotate();
             Jump();
             CustomGravity();

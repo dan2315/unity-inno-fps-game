@@ -23,7 +23,6 @@ namespace Gamemode
         
         
 
-
         private int _waveCounter = 1;
         private int _enemiesCounter;
         private int _enemiesForWave;

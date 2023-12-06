@@ -138,7 +138,7 @@ namespace Character
         private void AnimateReloading(Action onComplete)
         {
             if (visuals == null) return;
-
+            
             DOTween.Sequence()
                 .Append(visuals.DOLocalRotate(Vector3.forward * -30, 0.25f * reloadTime))
                 .Append(magazine.DOLocalMoveY(_initialMagazineHeight - 1, 0.25f * reloadTime))
